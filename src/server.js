@@ -5,7 +5,7 @@ import { connectMongoDB } from './db/connectMongoDB.js';
 import { notFoundHandler } from "./middleware/notFoundHandler.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { logger } from "./middleware/logger.js";
-import noteRoutes from './routes/noteRoutes.js';
+import noteRoutes from './routes/notesRoutes.js';
 
 
 const app = express();
