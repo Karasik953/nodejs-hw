@@ -1,53 +1,37 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import pino from "pino-http";
+import { connectMongoDB } from './db/connectMongoDB.js';
+import { notFoundHandler } from "./middleware/notFoundHandler.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { logger } from "./middleware/logger.js";
+import noteRoutes from './routes/noteRoutes.js';
+
 
 const app = express();
-const PORT = process.env.PORT ?? 3000;
+app.use(express.json({
+  type: ['application/json', 'application/vnd.api+json'],
+  limit: '100kb'
+}));
 
+const PORT = process.env.PORT ?? 3000;
+app.use(logger);
 app.use(express.json());
 app.use(cors());
 
-app.use(
-  pino({
-    level: "info",
-    transport: {
-      target: "pino-pretty",
-      options: {
-        colorize: true,
-        translateTime: "HH:MM:ss",
-        ignore: "pid,hostname",
-      },
-    },
-  }),
-);
 
-// GET /notes
-app.get("/notes", (req, res) => {
-  res.status(200).json({ message: "Retrieved all notes" });
-});
 
-// GET /notes/:noteId
-app.get("/notes/:noteId", (req, res) => {
-  const { noteId } = req.params;
-  res.status(200).json({ message: `Retrieved note with ID: ${noteId}` });
-});
+app.use(noteRoutes);
 
-// GET /test-error
-app.get("/test-error", () => {
-  throw new Error("Simulated server error");
-});
 
-// 404 middleware (после всех routes)
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
-});
+// 404 — якщо маршрут не знайдено
+app.use(notFoundHandler);
 
-// error middleware (последний)
-app.use((err, req, res, next) => {
-  res.status(500).json({ message: err.message });
-});
+// Error — якщо під час запиту виникла помилка
+app.use(errorHandler);
+
+await connectMongoDB();
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
