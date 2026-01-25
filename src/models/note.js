@@ -1,18 +1,7 @@
 // src/models/note.js
 import { Schema, model } from "mongoose";
 
-const TAGS = [
-  "Work",
-  "Personal",
-  "Meeting",
-  "Shopping",
-  "Ideas",
-  "Travel",
-  "Finance",
-  "Health",
-  "Important",
-  "Todo",
-];
+import { TAGS } from "../constants/tags.js";
 
 const noteSchema = new Schema(
   {
@@ -37,6 +26,8 @@ const noteSchema = new Schema(
     versionKey: false,
   }
 );
+
+noteSchema.index({title:"text", content:"text"});
 
 // третій аргумент = назва колекції в MongoDB
 export const Note = model("Note", noteSchema, "notes");
