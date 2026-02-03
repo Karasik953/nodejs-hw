@@ -1,6 +1,5 @@
 // src/models/note.js
 import { Schema, model } from "mongoose";
-
 import { TAGS } from "../constants/tags.js";
 
 const noteSchema = new Schema(
@@ -20,6 +19,13 @@ const noteSchema = new Schema(
       enum: TAGS,
       default: "Todo",
     },
+
+    // ✅ додали власника нотатки
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -27,7 +33,7 @@ const noteSchema = new Schema(
   }
 );
 
-noteSchema.index({title:"text", content:"text"});
+noteSchema.index({ title: "text", content: "text" });
 
 // третій аргумент = назва колекції в MongoDB
 export const Note = model("Note", noteSchema, "notes");

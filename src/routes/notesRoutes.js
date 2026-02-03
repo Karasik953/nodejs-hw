@@ -1,17 +1,50 @@
 import { Router } from "express";
-import { getAllNotes } from "../controllers/notesController.js";
-import { getNoteById } from "../controllers/notesController.js";
-import { createNote } from "../controllers/notesController.js";
-import { deleteNote } from "../controllers/notesController.js";
-import { updateNote } from "../controllers/notesController.js";
-import { createNoteSchema, getAllNotesSchema, noteIdSchema, updateNoteSchema } from "../validations/notesValidation.js";
 import { celebrate } from "celebrate";
+import { authenticate } from "../middleware/authenticate.js";
+import {
+  getAllNotes,
+  getNoteById,
+  createNote,
+  deleteNote,
+  updateNote,
+} from "../controllers/notesController.js";
+
+import {
+  createNoteSchema,
+  getAllNotesSchema,
+  noteIdSchema,
+  updateNoteSchema,
+} from "../validations/notesValidation.js";
+
+
+
 const router = Router();
 
-router.get("/notes", celebrate(getAllNotesSchema), getAllNotes);
-router.get("/notes/:noteId", celebrate(noteIdSchema), getNoteById);
-router.post("/notes", celebrate(createNoteSchema), createNote);
-router.delete("/notes/:noteId",celebrate(noteIdSchema), deleteNote);
-router.patch("/notes/:noteId",celebrate(updateNoteSchema), updateNote);
+// ✅ усі роуті нотаток захищені middleware authenticate
+router.get("/notes", authenticate, celebrate(getAllNotesSchema), getAllNotes);
+router.get(
+  "/notes/:noteId",
+  authenticate,
+  celebrate(noteIdSchema),
+  getNoteById
+);
+router.post(
+  "/notes",
+  authenticate,
+  celebrate(createNoteSchema),
+  createNote
+);
+router.delete(
+  "/notes/:noteId",
+  authenticate,
+  celebrate(noteIdSchema),
+  deleteNote
+);
+router.patch(
+  "/notes/:noteId",
+  authenticate,
+  celebrate(updateNoteSchema),
+  updateNote
+);
 
 export default router;
