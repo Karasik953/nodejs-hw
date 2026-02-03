@@ -9,18 +9,16 @@ export const getAllNotes = async (req, res) => {
   const perPageNum = Number(perPage);
   const skip = (pageNum - 1) * perPageNum;
 
-  // ✅ тепер базовий фільтр — тільки нотатки поточного користувача
-  const filter = { userId: req.user._id };
+  // ✅ query chaining: спочатку базовий запит, потім where/equals
+  const notesQuery = Note.find().where("userId").equals(req.user._id);
 
   if (tag) {
-    filter.tag = tag;
+    notesQuery.where("tag").equals(tag);
   }
 
   if (search) {
-    filter.$text = { $search: search };
+    notesQuery.where({ $text: { $search: search } });
   }
-
-  const notesQuery = Note.find(filter);
 
   const [totalItems, notes] = await Promise.all([
     notesQuery.clone().countDocuments(),
